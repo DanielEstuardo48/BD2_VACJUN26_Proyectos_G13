@@ -1,0 +1,20 @@
+services:
+  mysql_banco:
+    image: mysql:8.0
+    container_name: mysql_banco
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: banco1234
+      MYSQL_DATABASE: BancoDB
+      MYSQL_USER: banco_user
+      MYSQL_PASSWORD: banco_pass
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./sql:/sql
+      - ./datos:/datos
+      - mysql_data:/var/lib/mysql
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+
+volumes:
+  mysql_data:
