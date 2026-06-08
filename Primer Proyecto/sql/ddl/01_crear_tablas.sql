@@ -42,14 +42,14 @@ CREATE TABLE Cuenta (
     EstadoCuenta  VARCHAR(20)    NOT NULL DEFAULT 'ACTIVA',
     ClienteDNI    VARCHAR(20)    NOT NULL,
     SucursalID    INT            NOT NULL,
-    CONSTRAINT PK_Cuenta       PRIMARY KEY (CuentaID),
-    CONSTRAINT FK_Cta_Cliente  FOREIGN KEY (ClienteDNI)
+    CONSTRAINT PK_Cuenta PRIMARY KEY (CuentaID),
+    CONSTRAINT FK_Cta_Cliente FOREIGN KEY (ClienteDNI)
         REFERENCES Cliente(ClienteDNI),
-    CONSTRAINT FK_Cta_Suc     FOREIGN KEY (SucursalID)
+    CONSTRAINT FK_Cta_Suc FOREIGN KEY (SucursalID)
         REFERENCES Sucursal(SucursalID),
-    CONSTRAINT CHK_Saldo      CHECK (SaldoActual >= 0),
-    CONSTRAINT CHK_Tipo       CHECK (TipoCuenta IN ('Ahorro','Corriente')),
-    CONSTRAINT CHK_Estado     CHECK (EstadoCuenta IN ('ACTIVA','INACTIVA'))
+    CONSTRAINT CHK_Saldo CHECK (SaldoActual >= 0),
+    CONSTRAINT CHK_Tipo CHECK (TipoCuenta IN ('Ahorro','Corriente')),
+    CONSTRAINT CHK_Estado CHECK (EstadoCuenta IN ('ACTIVA','INACTIVA'))
 );
 
 -- Tabla de Transaccion
