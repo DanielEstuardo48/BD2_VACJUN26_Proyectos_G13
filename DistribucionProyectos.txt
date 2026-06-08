@@ -1,0 +1,28 @@
+La distribucion de trabajo para el primer proyecto es de l siguiente manera:
+
+Daniel Estuardo Salvatierra Macajola - 202202768
+
+-> Archivo ddl para la creacion de tablas
+-> Archivo python con la migracion de datos csv
+-> SP_RegistrarCliente
+-> SP_ActualizarCliente
+-> SP_AbrirCuenta
+-> Diccionario de datos
+-> Descripcion de la normalizacion
+-> Diagrama ER
+
+Daniel Alejandro Castellanos Rodriguez - 202200176
+
+-> SP_RegistrarDeposito
+-> SP_RegistrarRetiro
+-> SP_RealizarTransferencia
+-> Pruebas de transaccion en Manual
+
+Carlos Fernando Matta Peña - 202302190
+
+-> SP_ReporteClientesSucursal
+-> SP_CerrarCuenta
+-> SP_ReporteMovimientosCuenta
+-> Roles
+-> Respaldos
+-> Manual Usuario
