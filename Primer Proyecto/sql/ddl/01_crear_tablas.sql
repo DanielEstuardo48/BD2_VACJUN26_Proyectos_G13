@@ -35,7 +35,7 @@ CREATE TABLE Empleado (
 
 -- Tabla de Cuenta
 CREATE TABLE Cuenta (
-    CuentaID      INT            NOT NULL,
+    CuentaID      INT            NOT NULL AUTO_INCREMENT,
     TipoCuenta    VARCHAR(50)    NOT NULL,
     FechaApertura DATE           NOT NULL,
     SaldoActual   DECIMAL(15,2)  NOT NULL DEFAULT 0.00,
