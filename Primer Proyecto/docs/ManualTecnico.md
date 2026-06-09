@@ -18,9 +18,14 @@
 <h1 align="center">Proyecto 1 - Manual Técnico</h1>
 
 ## Tabla de Contenidos
-1. [Descriptión de Normalización](#1-descripción-de-normalización)
+1. [Proceso de Normalización](#1-proceso-de-normalización)
 2. [Diccionario de Datos](#2-diccionario-de-datos)
 3. [Diagrama Entidad-Relación](#3-diagrama-entidad-relación)
+4. [Procedimientos Almacenados](#4-procedimientos-almacenados)
+5. [Procedimientos de Operaciones Bancarias](#5-procedimientos-de-operaciones-bancarias)
+6. [Control de Concurrencia](#6-control-de-concurrencia)
+7. [Migración de Datos](#7-migración-de-datos)
+8. [Arquitectura de la Solución](#8-arquitectura-de-la-solución)
 
 ## 1. Proceso de Normalización
 
@@ -192,3 +197,192 @@ Para saber el nombre del empleado había que pasar primero por `EmpleadoID`, tam
 
 ### Diagrama de Tablas en DataGrip   
 ![DiagramaDataGrip](/Primer%20Proyecto/image/BancoDB.png)
+
+## 4. Procedimientos Almacenados
+
+Como parte de la lógica de negocio del sistema bancario se implementaron nueve procedimientos almacenados. Estos procedimientos permiten realizar operaciones de registro, actualización, consultas y movimientos bancarios manteniendo la integridad de los datos.
+
+### Procedimientos Implementados
+
+| Procedimiento | Descripción |
+|-------------|-------------|
+| SP_RegistrarCliente | Registra un nuevo cliente en el sistema. |
+| SP_ActualizarCliente | Actualiza la información de contacto de un cliente existente. |
+| SP_AbrirCuenta | Crea una nueva cuenta bancaria para un cliente existente. |
+| SP_RegistrarDeposito | Registra un depósito y actualiza el saldo de la cuenta. |
+| SP_RegistrarRetiro | Registra un retiro y descuenta el saldo de la cuenta. |
+| SP_RealizarTransferencia | Transfiere fondos entre dos cuentas registrando ambos movimientos. |
+| SP_ReporteClientesSucursal | Genera un reporte de clientes por sucursal. |
+| SP_CerrarCuenta | Permite cerrar una cuenta únicamente si su saldo es cero. |
+| SP_ReporteMovimientosCuenta | Consulta movimientos de una cuenta por rango de fechas. |
+
+## 5. Procedimientos de Operaciones Bancarias
+
+Los procedimientos desarrollados para las operaciones bancarias fueron implementados utilizando transacciones para garantizar la atomicidad y consistencia de los datos.
+
+Todos los procedimientos utilizan:
+
+- START TRANSACTION
+- COMMIT
+- ROLLBACK
+
+Además se implementaron bloqueos mediante SELECT ... FOR UPDATE para evitar inconsistencias por acceso concurrente.
+
+### SP_RegistrarDeposito
+
+Permite registrar depósitos en cuentas bancarias activas.
+
+#### Validaciones implementadas
+
+- La cuenta debe existir.
+- La cuenta debe estar activa.
+- El empleado debe existir.
+- El monto debe ser mayor a cero.
+
+#### Operaciones realizadas
+
+1. Bloqueo de la cuenta mediante FOR UPDATE.
+2. Registro del movimiento en la tabla Transaccion.
+3. Actualización del saldo de la cuenta.
+4. Confirmación de la transacción mediante COMMIT.
+
+#### Manejo de errores
+
+Si ocurre cualquier error durante la operación se ejecuta ROLLBACK para mantener la consistencia de los datos.
+
+### SP_RegistrarRetiro
+
+Permite retirar dinero de una cuenta bancaria.
+
+#### Validaciones implementadas
+
+- La cuenta debe existir.
+- La cuenta debe estar activa.
+- El empleado debe existir.
+- El monto debe ser mayor a cero.
+- El saldo disponible debe ser suficiente.
+
+#### Operaciones realizadas
+
+1. Bloqueo de la cuenta mediante FOR UPDATE.
+2. Registro del movimiento en la tabla Transaccion.
+3. Descuento del monto solicitado.
+4. Confirmación mediante COMMIT.
+
+#### Manejo de errores
+
+Cuando el saldo es insuficiente o ocurre un error interno se ejecuta ROLLBACK.
+
+### SP_RealizarTransferencia
+
+Permite transferir fondos entre dos cuentas bancarias.
+
+#### Validaciones implementadas
+
+- La cuenta origen debe existir.
+- La cuenta destino debe existir.
+- Ambas cuentas deben estar activas.
+- El monto debe ser mayor a cero.
+- La cuenta origen debe tener saldo suficiente.
+- La cuenta origen y destino no pueden ser la misma.
+
+#### Operaciones realizadas
+
+1. Bloqueo de ambas cuentas utilizando FOR UPDATE.
+2. Descuento del monto en la cuenta origen.
+3. Incremento del monto en la cuenta destino.
+4. Registro de TRANSFERENCIA_SALIDA.
+5. Registro de TRANSFERENCIA_ENTRADA.
+6. Confirmación mediante COMMIT.
+
+#### Manejo de errores
+
+Si cualquier operación falla se ejecuta ROLLBACK para revertir completamente la transferencia.
+
+## 6. Control de Concurrencia
+
+Para garantizar la consistencia de los datos se realizaron pruebas de concurrencia utilizando múltiples sesiones activas de MySQL.
+
+### Objetivo
+
+Evitar que dos usuarios modifiquen simultáneamente el saldo de una misma cuenta provocando inconsistencias.
+
+### Prueba realizada
+
+### Sesión 1
+
+```sql
+START TRANSACTION;
+
+SELECT *
+FROM Cuenta
+WHERE CuentaID = 1001
+FOR UPDATE;
+```
+
+### Sesión 2
+```sql
+CALL SP_RegistrarRetiro(
+    1001,
+    50.00,
+    'Prueba concurrencia',
+    501
+);
+```
+
+---
+
+## 7. Migración de Datos
+
+La migración de datos fue desarrollada utilizando Python y la librería Pandas.
+
+### Archivos fuente
+
+- clientes_raw.csv
+- cuentas_raw.csv
+- empleados_raw.csv
+- sucursales_raw.csv
+- transacciones_raw.csv
+
+### Proceso realizado
+
+1. Lectura de archivos CSV.
+2. Eliminación de registros duplicados.
+3. Limpieza de datos inconsistentes.
+4. Transformación de formatos.
+5. Inserción de registros en las tablas normalizadas.
+
+### Herramientas utilizadas
+
+- Python 3
+- Pandas
+- mysql-connector-python
+
+## 8. Arquitectura de la Solución
+
+El proyecto fue implementado utilizando una arquitectura basada en contenedores Docker.
+
+### Componentes
+
+#### Base de Datos
+
+- MySQL 8.0
+
+#### Migración
+
+- Python
+- Pandas
+
+#### Administración
+
+- DataGrip
+
+#### Control de Versiones
+
+- Git
+- GitHub
+
+#### Contenedor
+
+- Docker Compose
+**
