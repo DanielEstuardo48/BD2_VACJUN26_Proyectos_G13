@@ -35,7 +35,7 @@ BEGIN
     ELSE
         START TRANSACTION;
             INSERT INTO Cuenta (TipoCuenta, FechaApertura, SaldoActual, EstadoCuenta, ClienteDNI, SucursalID)
-            VALUES (p_TipoCuenta, CURDATE(), p_SaldoInicial, 'Activa', p_ClienteDNI, p_SucursalID);
+            VALUES (p_TipoCuenta, CURDATE(), p_SaldoInicial, 'ACTIVA', p_ClienteDNI, p_SucursalID);
 
             SET v_nuevaCuentaID = LAST_INSERT_ID(); -- Guarda el ID de la nueva cuenta para mostrarlo después
 
