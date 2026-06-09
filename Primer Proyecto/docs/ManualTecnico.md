@@ -299,6 +299,88 @@ Permite transferir fondos entre dos cuentas bancarias.
 
 Si cualquier operación falla se ejecuta ROLLBACK para revertir completamente la transferencia.
 
+### SP_ReporteClientesSucursal
+
+Permite generar un reporte de los clientes que poseen cuentas asociadas a una sucursal específica.
+
+#### Validaciones implementadas
+
+- El nombre de la sucursal debe ser obligatorio.
+- El nombre de la sucursal no puede estar vacío.
+- La sucursal debe existir en la tabla Sucursal.
+
+#### Operaciones realizadas
+
+1. Se recibe el nombre de la sucursal como parámetro de entrada.
+2. Se valida que el parámetro no sea nulo ni vacío.
+3. Se verifica que la sucursal exista en la tabla Sucursal.
+4. Se consultan las cuentas asociadas a dicha sucursal.
+5. Se relaciona la información de las tablas Sucursal, Cuenta y Cliente.
+6. Se devuelve el listado de clientes con sus respectivas cuentas.
+
+#### Manejo de errores
+
+Si el nombre de la sucursal es nulo, vacío o no existe, el procedimiento devuelve un mensaje de error sin modificar información de la base de datos.
+
+---
+
+### SP_CerrarCuenta
+
+Permite cerrar una cuenta bancaria cambiando su estado de ACTIVA a INACTIVA.
+
+#### Validaciones implementadas
+
+- El ID de la cuenta debe ser obligatorio.
+- La cuenta debe existir.
+- La cuenta debe estar activa.
+- La cuenta debe tener saldo igual a cero.
+- No se permite cerrar una cuenta que todavía tenga saldo disponible.
+
+#### Operaciones realizadas
+
+1. Se recibe el identificador de la cuenta como parámetro de entrada.
+2. Se valida que el parámetro no sea nulo.
+3. Se verifica que la cuenta exista en la tabla Cuenta.
+4. Se inicia una transacción con START TRANSACTION.
+5. Se bloquea la cuenta mediante SELECT ... FOR UPDATE.
+6. Se valida que la cuenta esté activa.
+7. Se valida que el saldo actual sea igual a cero.
+8. Se actualiza el estado de la cuenta a INACTIVA.
+9. Se confirma la operación mediante COMMIT.
+
+#### Manejo de errores
+
+Si la cuenta no existe, ya se encuentra inactiva o tiene saldo disponible, el procedimiento no realiza el cierre. En caso de error durante la operación, se ejecuta ROLLBACK para conservar la consistencia de los datos.
+
+---
+
+### SP_ReporteMovimientosCuenta
+
+Permite consultar los movimientos realizados en una cuenta bancaria dentro de un rango de fechas.
+
+#### Validaciones implementadas
+
+- El ID de la cuenta debe ser obligatorio.
+- La fecha de inicio debe ser obligatoria.
+- La fecha de fin debe ser obligatoria.
+- La fecha de inicio no puede ser mayor que la fecha de fin.
+- La cuenta debe existir en la tabla Cuenta.
+
+#### Operaciones realizadas
+
+1. Se recibe el identificador de la cuenta y el rango de fechas como parámetros de entrada.
+2. Se valida que el ID de la cuenta no sea nulo.
+3. Se valida que ambas fechas hayan sido ingresadas.
+4. Se verifica que la fecha de inicio no sea mayor que la fecha de fin.
+5. Se valida que la cuenta exista.
+6. Se consultan los movimientos de la tabla Transaccion.
+7. Se relaciona la información con la tabla Empleado.
+8. Se devuelven los movimientos ordenados por fecha y número de movimiento.
+
+#### Manejo de errores
+
+Si la cuenta no existe, las fechas son inválidas o falta algún parámetro obligatorio, el procedimiento devuelve un mensaje de error. Al ser un procedimiento de consulta, no modifica información de la base de datos.
+
 ## 6. Control de Concurrencia
 
 Para garantizar la consistencia de los datos se realizaron pruebas de concurrencia utilizando múltiples sesiones activas de MySQL.
@@ -332,7 +414,17 @@ CALL SP_RegistrarRetiro(
 
 ---
 
-## 7. Migración de Datos
+## 7. Usuarios, Roles y Permisos
+
+Para cumplir con la administración de seguridad de la base de datos se crearon usuarios con distintos niveles de acceso. El objetivo es limitar las operaciones disponibles según el tipo de usuario y evitar que todos tengan permisos administrativos.
+
+| Usuario | Rol lógico | Permisos asignados | Descripción |
+|---|---|---|---|
+| Cajero | Operativo | EXECUTE sobre SP_AbrirCuenta, SP_RegistrarDeposito, SP_RegistrarRetiro, SP_RealizarTransferencia, SP_ActualizarCliente, SP_RealizarTransferencia, SP_CerrarCuenta | Puede ejecutar operaciones bancarias básicas como apertura de cuentas, depósitos, retiros y transferencias. |
+| Gerente | Consulta y reportes | EXECUTE sobre SP_ReporteClientesSucursal, SP_ReporteMovimientosCuenta, SP_RegistrarCliente | Puede consultar reportes de clientes por sucursal y movimientos de cuentas. No modifica saldos ni estados. |
+| Admin_banco | Administrador | ALL PRIVILEGES sobre BancoDB.* | Tiene control completo sobre la base de datos, incluyendo tablas, datos, procedimientos, usuarios y permisos. |
+
+## 8. Migración de Datos
 
 La migración de datos fue desarrollada utilizando Python y la librería Pandas.
 
@@ -358,7 +450,198 @@ La migración de datos fue desarrollada utilizando Python y la librería Pandas.
 - Pandas
 - mysql-connector-python
 
-## 8. Arquitectura de la Solución
+## 9. # Respaldos y Recuperación
+
+Primer Proyecto - Sistemas de Bases de Datos 2  
+Base de datos: `BancoDB`  
+DBMS: MySQL  
+Contenedor Docker: `mysql_banco`
+
+---
+
+### 9.1. Objetivo
+
+
+Este documento describe el procedimiento de respaldos utilizado para el proyecto, así como el proceso de recuperación de la base de datos a partir de un respaldo completo y tres respaldos incrementales.
+
+
+El procedimiento utilizado consiste en:
+
+1. Un respaldo completo de la base de datos funcional, unicamente tablas y datos
+2. Tres respaldos incrementales que contienen los procedimientos almacenados agregados posteriormente.
+
+---
+
+### 9.2. Archivos de respaldo
+
+Los archivos se encuentran en la carpeta:
+
+```text
+sql/respaldos/
+```
+
+La estructura es la siguiente:
+
+```text
+sql/respaldos/
+├── 00_respaldo_completo_base.sql
+├── 01_incremental_clientes_cuentas.sql
+├── 02_incremental_operaciones_bancarias.sql
+├── 03_incremental_reportes_cierre.sql
+└── README_respaldos.md
+```
+
+---
+
+### 9.3. Respaldo completo
+
+```text
+sql/respaldos/
+```
+
+El archivo contiene:
+
+- Estructura de tablas.
+- Llaves primarias.
+- Llaves foráneas.
+- Restricciones.
+- Datos cargados en la base.
+
+No contiene procedimientos almacenados.
+
+Este respaldo fue generado con el comando:
+
+```bash
+docker exec mysql_banco mysqldump -u root -pbanco1234 --set-gtid-purged=OFF BancoDB > 00_respaldo_completo_base.sql
+```
+---
+
+### 9.4. Respaldos incrementales
+
+Los respaldos incrementales contienen únicamente cambios posteriores al respaldo completo. En este proyecto, dichos cambios corresponden a procedimientos almacenados.
+
+#### Incremental 01
+
+Archivo:
+```text
+01_incremental_clientes_cuentas.sql
+```
+
+Contiene:
+
+- `SP_RegistrarCliente`
+- `SP_ActualizarCliente`
+- `SP_AbrirCuenta`
+
+#### Incremental 02
+
+Archivo:
+```text
+02_incremental_operaciones_bancarias.sql
+```
+
+Contiene:
+
+- `SP_RegistrarDeposito`
+- `SP_RegistrarRetiro`
+- `SP_RealizarTransferencia`
+
+#### Incremental 03
+
+Archivo:
+```text
+03_incremental_reportes_cierre.sql
+```
+
+Contiene:
+
+- `SP_CerrarCuenta`
+- `SP_ReporteClientesSucursal`
+- `SP_ReporteMovimientosCuenta`
+
+### 9.5. Recuperación
+
+1. Primero borramos todos los contenidos de nuestra base, es decir borramos todas nuestras tablas:
+
+```bash
+docker exec mysql_banco mysql -u root -pbanco1234 BancoDB -e "SET FOREIGN_KEY_CHECKS=0; DROP TABLE IF EXISTS Transaccion; DROP TABLE IF EXISTS Cuenta; DROP TABLE IF EXISTS Empleado; DROP TABLE IF EXISTS Cliente; DROP TABLE IF EXISTS Sucursal; SET FOREIGN_KEY_CHECKS=1;"
+```
+![Base de datos vacia](../image/Base_vacia.png)
+
+2. Luego se restaura el respaldo completo:
+
+```bash
+Get-Content .\00_respaldo_completo_base.sql | docker exec -i mysql_banco mysql -u root -pbanco1234 BancoDB
+```
+![Primer Respaldo](../image/RespaldoCompleto.png)
+
+3. Después se aplican los incrementales:
+
+```bash
+Get-Content .\01_incremental_clientes_cuentas.sql | docker exec -i mysql_banco mysql -u root -pbanco1234 BancoDB
+```
+
+```bash
+Get-Content .\02_incremental_operaciones_bancarias.sql | docker exec -i mysql_banco mysql -u root -pbanco1234 BancoDB
+```
+
+```bash
+Get-Content .\03_incremental_reportes_cierre.sql | docker exec -i mysql_banco mysql -u root -pbanco1234 BancoDB
+```
+
+![Respaldos Incrementales](../image/RespaldoIncrementales.png)
+
+### 9.6. Verificación de recuperación
+
+Después de restaurar la base y aplicar los incrementales, se recomienda ejecutar:
+
+```SQL
+USE BancoDB;
+
+SHOW TABLES;
+```
+
+Resultado esperado:
+
+| Tables\_in\_BancoDB |
+| :--- |
+| Cliente |
+| Cuenta |
+| Empleado |
+| Sucursal |
+| Transaccion |
+
+Verificar procedimientos:
+```SQL
+SHOW PROCEDURE STATUS
+WHERE Db = 'BancoDB';
+```
+
+Deben aparecer los nueve procedimientos:
+
+| Db | Name | Type | Definer | Modified | Created | Security\_type | Comment | character\_set\_client | collation\_connection | Database Collation |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| BancoDB | SP\_AbrirCuenta | PROCEDURE | root@localhost | 2026-06-09 19:33:01 | 2026-06-09 19:33:01 | DEFINER |  | latin1 | latin1\_swedish\_ci | utf8mb4\_unicode\_ci |
+| BancoDB | SP\_ActualizarCLiente | PROCEDURE | root@localhost | 2026-06-09 19:33:01 | 2026-06-09 19:33:01 | DEFINER |  | latin1 | latin1\_swedish\_ci | utf8mb4\_unicode\_ci |
+| BancoDB | SP\_CerrarCuenta | PROCEDURE | root@localhost | 2026-06-09 19:33:15 | 2026-06-09 19:33:15 | DEFINER |  | latin1 | latin1\_swedish\_ci | utf8mb4\_unicode\_ci |
+| BancoDB | SP\_RealizarTransferencia | PROCEDURE | root@localhost | 2026-06-09 19:33:10 | 2026-06-09 19:33:10 | DEFINER |  | latin1 | latin1\_swedish\_ci | utf8mb4\_unicode\_ci |
+| BancoDB | SP\_RegistrarCliente | PROCEDURE | root@localhost | 2026-06-09 19:33:01 | 2026-06-09 19:33:01 | DEFINER |  | latin1 | latin1\_swedish\_ci | utf8mb4\_unicode\_ci |
+| BancoDB | SP\_RegistrarDeposito | PROCEDURE | root@localhost | 2026-06-09 19:33:10 | 2026-06-09 19:33:10 | DEFINER |  | latin1 | latin1\_swedish\_ci | utf8mb4\_unicode\_ci |
+| BancoDB | SP\_RegistrarRetiro | PROCEDURE | root@localhost | 2026-06-09 19:33:10 | 2026-06-09 19:33:10 | DEFINER |  | latin1 | latin1\_swedish\_ci | utf8mb4\_unicode\_ci |
+| BancoDB | SP\_ReporteClientesSucursal | PROCEDURE | root@localhost | 2026-06-09 19:33:15 | 2026-06-09 19:33:15 | DEFINER |  | latin1 | latin1\_swedish\_ci | utf8mb4\_unicode\_ci |
+| BancoDB | SP\_ReporteMovimientosCuenta | PROCEDURE | root@localhost | 2026-06-09 19:33:15 | 2026-06-09 19:33:15 | DEFINER |  | latin1 | latin1\_swedish\_ci | utf8mb4\_unicode\_ci |
+
+
+### 9.7. Observaciones
+- El respaldo completo no incluye procedimientos almacenados.
+- Los procedimientos se recuperan mediante los tres respaldos incrementales.
+- Los incrementales deben ejecutarse en orden.
+- Si se modifica un procedimiento, debe actualizarse también el incremental correspondiente.
+- Los mensajes de advertencia sobre uso de contraseña en línea de comandos no afectan la ejecución en este entorno académico.
+
+
+
+## 10. Arquitectura de la Solución
 
 El proyecto fue implementado utilizando una arquitectura basada en contenedores Docker.
 

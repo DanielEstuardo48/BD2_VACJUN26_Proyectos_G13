@@ -2,7 +2,7 @@ USE BancoDB;
 
 DELIMITER $$
 
-DROP PROCEDURE IF EXISTS SP_ReproteMovimientosCuenta$$
+DROP PROCEDURE IF EXISTS SP_ReporteMovimientosCuenta$$
 
 CREATE PROCEDURE SP_ReporteMovimientosCuenta(
     IN p_CuentaID INT,
