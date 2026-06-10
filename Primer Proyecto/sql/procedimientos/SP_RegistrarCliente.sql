@@ -27,13 +27,19 @@ BEGIN
         SELECT 'ERROR: El DNI del cliente no puede estar vacío.' AS Mensaje;
     ELSEIF p_Nombre IS NULL OR p_Nombre = '' THEN
         SELECT 'ERROR: El nombre del cliente no puede estar vacío.' AS Mensaje;
+    ELSEIF p_FechaNacimiento IS NULL THEN
+        SELECT 'ERROR: La fecha de nacimiento del cliente no puede estar vacía.' AS Mensaje;
+    ELSEIF p_Direccion IS NULL OR p_Direccion = '' THEN
+        SELECT 'ERROR: La dirección del cliente no puede estar vacía.' AS Mensaje;
+    ELSEIF p_Telefono IS NULL OR p_Telefono = '' THEN
+        SELECT 'ERROR: El teléfono del cliente no puede estar vacío.' AS Mensaje;
+    ELSEIF p_Correo IS NULL OR p_Correo = '' THEN
+        SELECT 'ERROR: El correo del cliente no puede estar vacío.' AS Mensaje;
     ELSE
         START TRANSACTION;
 
             INSERT INTO Cliente (ClienteDNI, Nombre, FechaNacimiento, Direccion, Telefono, Correo)
             VALUES (p_ClienteDNI, p_Nombre, p_FechaNacimiento, p_Direccion, p_Telefono, p_Correo);
-
-            SAVEPOINT cliente_guardado; -- Punto de guardado
         
         COMMIT;
 

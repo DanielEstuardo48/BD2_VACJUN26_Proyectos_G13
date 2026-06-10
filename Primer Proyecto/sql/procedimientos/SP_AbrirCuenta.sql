@@ -39,7 +39,6 @@ BEGIN
 
             SET v_nuevaCuentaID = LAST_INSERT_ID(); -- Guarda el ID de la nueva cuenta para mostrarlo después
 
-            SAVEPOINT cuenta_creada; -- Para poder hacer rollback a este punto si algo falla después
         COMMIT;
 
         SELECT v_nuevaCuentaID AS CuentaID,

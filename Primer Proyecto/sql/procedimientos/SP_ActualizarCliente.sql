@@ -21,6 +21,12 @@ BEGIN
         SELECT 'ERROR: El cliente no existe' AS Mensaje;
     ELSEIF p_ClienteDNI IS NULL OR p_ClienteDNI = '' THEN
         SELECT 'ERROR: El DNI del cliente no puede estar vacío.' AS Mensaje;
+    ELSEIF p_Direccion IS NULL OR p_Direccion = '' THEN
+        SELECT 'ERROR: La dirección del cliente no puede estar vacía.' AS Mensaje;
+    ELSEIF p_Telefono IS NULL OR p_Telefono = '' THEN
+        SELECT 'ERROR: El teléfono del cliente no puede estar vacío.' AS Mensaje;
+    ELSEIF p_Correo IS NULL OR p_Correo = '' THEN
+        SELECT 'ERROR: El correo del cliente no puede estar vacío.' AS Mensaje;
     ELSE
         START TRANSACTION;
             UPDATE Cliente
@@ -28,8 +34,6 @@ BEGIN
                 Telefono = p_Telefono,
                 Correo = p_Correo
             WHERE ClienteDNI = p_ClienteDNI;
-
-            SAVEPOINT cliente_actualizado;
 
         COMMIT;
 

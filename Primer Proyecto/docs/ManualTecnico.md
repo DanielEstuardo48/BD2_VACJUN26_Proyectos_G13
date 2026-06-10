@@ -228,6 +228,69 @@ Todos los procedimientos utilizan:
 
 Además se implementaron bloqueos mediante SELECT ... FOR UPDATE para evitar inconsistencias por acceso concurrente.
 
+### SP_RegistrarCliente
+
+Permite registrar un nuevo cliente en el sistema.
+
+#### Validaciones implementadas
+
+ - El DNI del cliente no debe estar registrado previamente.
+ - El DNI del cliente no puede ser nulo ni vacío.
+ - El nombre del cliente no puede ser nulo ni vacío.
+ - La fecha de nacimiento no puede ser nula.
+ - La dirección no puede ser nula ni vacía.
+ - El teléfono no puede ser nulo ni vacío.
+ - El correo no puede ser nulo ni vacío.
+
+#### Operaciones realizadas
+1. Se reciben los datos del cliente como parámetros de entrada.
+2. Se validan los datos según las reglas mencionadas.
+3. Si alguna validación falla, se devuelve un mensaje de error sin modificar la base de datos.
+4. Si todas las validaciones son correctas, se inicia una transacción con START TRANSACTION.
+5. Se inserta el nuevo cliente en la tabla Cliente.
+
+#### Manejo de errores
+Si ocurre cualquier error durante la inserción se ejecuta ROLLBACK para mantener la consistencia de los datos.
+
+### SP_ActualizarCliente
+
+Permite actualizar la información de un cliente existente.
+
+#### Validaciones implementadas
+- El DNI del cliente debe existir en la tabla Cliente.
+- El DNI del cliente no puede ser nulo ni vacío.
+- La dirección, teléfono y correo no pueden ser nulos ni vacíos.
+
+#### Operaciones realizadas
+1. Se recibe el DNI del cliente y los nuevos datos como parámetros de entrada.
+2. Se validan los datos según las reglas mencionadas.
+3. Si alguna validación falla, se devuelve un mensaje de error sin modificar la base de datos.
+4. Si todas las validaciones son correctas, se inicia una transacción con START TRANSACTION.
+5. Se actualiza la información del cliente en la tabla Cliente.
+
+#### Manejo de errores
+Si ocurre cualquier error durante la actualización se ejecuta ROLLBACK para mantener la consistencia de los datos.
+
+### SP_AbrirCuenta
+
+Permite crear una nueva cuenta bancaria para un cliente existente.  
+
+#### Validaciones implementadas
+- El DNI del cliente debe existir en la tabla Cliente.
+- El tipo de cuenta debe ser válido (Ahorro o Corriente).
+- La sucursal debe existir en la tabla Sucursal.
+- El saldo inicial debe ser mayor o igual a cero.
+
+#### Operaciones realizadas
+1. Se reciben los datos de la cuenta como parámetros de entrada.
+2. Se validan los datos según las reglas mencionadas.
+3. Si alguna validación falla, se devuelve un mensaje de error sin modificar la base de datos.
+4. Si todas las validaciones son correctas, se inicia una transacción con START TRANSACTION.
+5. Se inserta la nueva cuenta en la tabla Cuenta.
+
+#### Manejo de errores
+Si ocurre cualquier error durante la inserción se ejecuta ROLLBACK para mantener la consistencia de los datos.
+
 ### SP_RegistrarDeposito
 
 Permite registrar depósitos en cuentas bancarias activas.
