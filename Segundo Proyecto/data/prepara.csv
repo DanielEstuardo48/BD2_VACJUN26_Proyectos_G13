@@ -1,0 +1,351 @@
+id_chef,id_platillo,estilo,especialidad
+79,33,Fusión,Entrada
+7,35,Tradicional,Especialidad de la casa
+48,36,Gourmet,Entrada
+94,12,Moderno,Entrada
+63,43,Moderno,Plato fuerte
+56,12,Moderno,Entrada
+85,48,Gourmet,Especialidad de la casa
+53,34,Gourmet,Entrada
+67,27,Gourmet,Especialidad de la casa
+97,40,Fusión,Plato fuerte
+70,41,Moderno,Plato fuerte
+7,3,Gourmet,Especialidad de la casa
+79,19,Gourmet,Plato fuerte
+36,48,Fusión,Entrada
+17,44,Gourmet,Plato fuerte
+7,21,Gourmet,Entrada
+71,24,Gourmet,Postre
+27,8,Gourmet,Entrada
+40,45,Tradicional,Entrada
+52,10,Gourmet,Especialidad de la casa
+6,43,Tradicional,Entrada
+45,25,Fusión,Plato fuerte
+89,22,Gourmet,Postre
+97,44,Gourmet,Plato fuerte
+67,40,Tradicional,Postre
+70,36,Tradicional,Entrada
+98,18,Moderno,Plato fuerte
+17,39,Tradicional,Postre
+82,19,Gourmet,Especialidad de la casa
+44,19,Fusión,Especialidad de la casa
+44,28,Fusión,Especialidad de la casa
+43,41,Moderno,Especialidad de la casa
+56,20,Fusión,Plato fuerte
+2,49,Tradicional,Plato fuerte
+24,46,Gourmet,Plato fuerte
+70,13,Moderno,Postre
+3,23,Fusión,Especialidad de la casa
+97,39,Fusión,Postre
+100,50,Tradicional,Entrada
+71,23,Fusión,Entrada
+83,6,Gourmet,Especialidad de la casa
+40,35,Gourmet,Entrada
+52,18,Fusión,Plato fuerte
+25,1,Fusión,Plato fuerte
+93,19,Tradicional,Postre
+10,21,Gourmet,Plato fuerte
+89,12,Tradicional,Especialidad de la casa
+78,12,Gourmet,Entrada
+16,37,Gourmet,Postre
+36,15,Fusión,Especialidad de la casa
+100,36,Fusión,Postre
+17,29,Gourmet,Plato fuerte
+9,25,Gourmet,Postre
+6,28,Gourmet,Especialidad de la casa
+54,41,Gourmet,Postre
+10,25,Moderno,Especialidad de la casa
+43,31,Gourmet,Especialidad de la casa
+22,8,Tradicional,Especialidad de la casa
+74,46,Tradicional,Entrada
+3,4,Fusión,Plato fuerte
+88,48,Moderno,Postre
+9,11,Moderno,Especialidad de la casa
+21,3,Fusión,Postre
+29,16,Tradicional,Entrada
+81,44,Gourmet,Plato fuerte
+32,8,Moderno,Plato fuerte
+51,21,Tradicional,Postre
+67,11,Fusión,Plato fuerte
+35,40,Moderno,Especialidad de la casa
+13,40,Fusión,Especialidad de la casa
+24,49,Tradicional,Postre
+5,44,Gourmet,Postre
+58,47,Gourmet,Entrada
+81,12,Tradicional,Plato fuerte
+6,18,Tradicional,Plato fuerte
+54,13,Fusión,Postre
+39,24,Gourmet,Entrada
+51,7,Moderno,Plato fuerte
+43,3,Fusión,Especialidad de la casa
+43,12,Tradicional,Postre
+12,43,Fusión,Entrada
+32,21,Moderno,Plato fuerte
+24,17,Fusión,Entrada
+100,3,Tradicional,Plato fuerte
+55,22,Tradicional,Plato fuerte
+28,23,Moderno,Especialidad de la casa
+80,24,Gourmet,Entrada
+5,30,Gourmet,Entrada
+58,42,Fusión,Especialidad de la casa
+81,7,Fusión,Postre
+54,8,Gourmet,Especialidad de la casa
+62,21,Gourmet,Especialidad de la casa
+39,19,Tradicional,Especialidad de la casa
+19,50,Tradicional,Especialidad de la casa
+39,37,Fusión,Entrada
+66,9,Tradicional,Entrada
+43,7,Moderno,Postre
+24,3,Fusión,Plato fuerte
+77,5,Tradicional,Especialidad de la casa
+16,35,Fusión,Especialidad de la casa
+38,50,Gourmet,Postre
+77,32,Fusión,Plato fuerte
+61,15,Tradicional,Entrada
+69,37,Tradicional,Plato fuerte
+73,7,Fusión,Plato fuerte
+11,32,Gourmet,Plato fuerte
+54,12,Moderno,Plato fuerte
+39,23,Moderno,Postre
+31,28,Moderno,Especialidad de la casa
+4,20,Moderno,Postre
+12,33,Tradicional,Plato fuerte
+35,7,Gourmet,Entrada
+96,23,Gourmet,Postre
+35,16,Fusión,Plato fuerte
+99,37,Fusión,Especialidad de la casa
+17,4,Tradicional,Plato fuerte
+46,40,Moderno,Especialidad de la casa
+58,5,Gourmet,Plato fuerte
+57,40,Tradicional,Especialidad de la casa
+26,34,Tradicional,Especialidad de la casa
+42,6,Moderno,Postre
+77,36,Moderno,Especialidad de la casa
+50,37,Moderno,Postre
+62,20,Moderno,Entrada
+39,27,Moderno,Postre
+64,29,Gourmet,Postre
+12,37,Fusión,Entrada
+96,27,Tradicional,Entrada
+46,26,Tradicional,Especialidad de la casa
+58,9,Fusión,Plato fuerte
+98,45,Moderno,Entrada
+38,49,Moderno,Postre
+91,33,Fusión,Plato fuerte
+11,13,Gourmet,Plato fuerte
+94,38,Tradicional,Especialidad de la casa
+54,11,Fusión,Especialidad de la casa
+60,45,Fusión,Plato fuerte
+95,21,Moderno,Plato fuerte
+84,39,Fusión,Entrada
+43,1,Tradicional,Especialidad de la casa
+96,4,Moderno,Entrada
+56,29,Fusión,Plato fuerte
+35,6,Fusión,Plato fuerte
+16,2,Gourmet,Postre
+88,18,Tradicional,Postre
+38,8,Moderno,Plato fuerte
+7,20,Moderno,Plato fuerte
+98,40,Gourmet,Especialidad de la casa
+15,33,Fusión,Especialidad de la casa
+61,18,Gourmet,Plato fuerte
+42,14,Moderno,Entrada
+19,12,Tradicional,Especialidad de la casa
+11,26,Fusión,Entrada
+41,27,Fusión,Entrada
+75,29,Moderno,Plato fuerte
+83,42,Moderno,Plato fuerte
+39,8,Tradicional,Plato fuerte
+60,49,Fusión,Plato fuerte
+23,9,Tradicional,Plato fuerte
+10,48,Gourmet,Especialidad de la casa
+34,24,Fusión,Entrada
+57,7,Tradicional,Postre
+68,7,Tradicional,Especialidad de la casa
+89,48,Fusión,Entrada
+68,25,Fusión,Entrada
+7,33,Fusión,Especialidad de la casa
+82,45,Fusión,Postre
+11,3,Tradicional,Plato fuerte
+63,41,Fusión,Entrada
+19,25,Moderno,Entrada
+41,22,Fusión,Plato fuerte
+52,22,Gourmet,Especialidad de la casa
+83,37,Moderno,Plato fuerte
+84,2,Moderno,Postre
+23,4,Fusión,Postre
+84,20,Fusión,Plato fuerte
+72,27,Gourmet,Especialidad de la casa
+64,32,Moderno,Plato fuerte
+3,13,Moderno,Entrada
+34,28,Fusión,Plato fuerte
+88,8,Fusión,Especialidad de la casa
+76,6,Fusión,Postre
+45,37,Tradicional,Entrada
+46,2,Tradicional,Especialidad de la casa
+57,11,Moderno,Plato fuerte
+46,11,Fusión,Especialidad de la casa
+15,5,Tradicional,Plato fuerte
+49,16,Fusión,Especialidad de la casa
+26,23,Tradicional,Plato fuerte
+18,28,Gourmet,Especialidad de la casa
+30,2,Fusión,Postre
+29,34,Fusión,Plato fuerte
+71,49,Tradicional,Postre
+91,27,Gourmet,Entrada
+75,19,Tradicional,Especialidad de la casa
+21,48,Fusión,Especialidad de la casa
+41,35,Fusión,Plato fuerte
+33,31,Moderno,Entrada
+84,15,Moderno,Plato fuerte
+64,9,Tradicional,Plato fuerte
+53,9,Moderno,Especialidad de la casa
+56,14,Moderno,Entrada
+74,50,Moderno,Entrada
+25,45,Fusión,Especialidad de la casa
+76,10,Fusión,Postre
+22,39,Gourmet,Entrada
+3,44,Moderno,Plato fuerte
+91,4,Gourmet,Entrada
+29,20,Gourmet,Especialidad de la casa
+29,38,Fusión,Entrada
+41,12,Tradicional,Especialidad de la casa
+75,14,Moderno,Entrada
+52,12,Gourmet,Plato fuerte
+53,13,Moderno,Especialidad de la casa
+86,10,Gourmet,Entrada
+37,5,Tradicional,Especialidad de la casa
+22,25,Moderno,Postre
+89,33,Tradicional,Entrada
+90,25,Fusión,Plato fuerte
+40,24,Gourmet,Entrada
+82,39,Moderno,Especialidad de la casa
+94,4,Tradicional,Plato fuerte
+63,35,Fusión,Postre
+44,12,Gourmet,Especialidad de la casa
+33,21,Moderno,Plato fuerte
+78,37,Gourmet,Entrada
+59,33,Fusión,Postre
+7,4,Moderno,Postre
+47,40,Moderno,Entrada
+29,10,Moderno,Entrada
+81,47,Tradicional,Especialidad de la casa
+21,42,Fusión,Postre
+10,14,Fusión,Postre
+20,46,Gourmet,Especialidad de la casa
+85,35,Gourmet,Plato fuerte
+67,5,Fusión,Postre
+89,23,Moderno,Postre
+67,32,Moderno,Entrada
+82,20,Fusión,Entrada
+17,49,Moderno,Entrada
+6,21,Fusión,Postre
+39,36,Moderno,Especialidad de la casa
+74,3,Moderno,Plato fuerte
+20,50,Gourmet,Plato fuerte
+31,50,Tradicional,Plato fuerte
+4,42,Moderno,Especialidad de la casa
+22,1,Fusión,Entrada
+51,37,Gourmet,Plato fuerte
+97,4,Fusión,Plato fuerte
+66,35,Moderno,Entrada
+96,45,Fusión,Especialidad de la casa
+35,47,Tradicional,Entrada
+55,34,Moderno,Postre
+100,33,Gourmet,Entrada
+28,26,Gourmet,Postre
+71,6,Tradicional,Postre
+82,6,Gourmet,Postre
+9,40,Moderno,Postre
+62,42,Tradicional,Entrada
+31,36,Tradicional,Plato fuerte
+12,32,Gourmet,Plato fuerte
+84,48,Fusión,Postre
+51,32,Tradicional,Especialidad de la casa
+12,50,Gourmet,Postre
+43,37,Tradicional,Postre
+35,33,Tradicional,Plato fuerte
+78,13,Moderno,Plato fuerte
+1,40,Moderno,Plato fuerte
+70,9,Gourmet,Entrada
+28,3,Gourmet,Postre
+100,19,Fusión,Postre
+46,48,Fusión,Postre
+47,25,Tradicional,Plato fuerte
+69,22,Tradicional,Entrada
+48,8,Tradicional,Plato fuerte
+42,32,Tradicional,Entrada
+61,45,Moderno,Plato fuerte
+19,39,Gourmet,Postre
+81,32,Tradicional,Entrada
+54,15,Fusión,Especialidad de la casa
+4,41,Fusión,Plato fuerte
+99,40,Gourmet,Plato fuerte
+99,49,Tradicional,Plato fuerte
+92,19,Gourmet,Postre
+42,18,Tradicional,Plato fuerte
+91,50,Fusión,Plato fuerte
+11,39,Gourmet,Plato fuerte
+74,6,Fusión,Entrada
+4,18,Fusión,Entrada
+31,44,Tradicional,Plato fuerte
+32,18,Tradicional,Entrada
+23,49,Tradicional,Postre
+88,35,Fusión,Plato fuerte
+46,38,Fusión,Especialidad de la casa
+26,50,Fusión,Postre
+27,33,Fusión,Entrada
+42,31,Moderno,Entrada
+61,44,Gourmet,Plato fuerte
+20,30,Gourmet,Especialidad de la casa
+87,29,Tradicional,Postre
+34,50,Moderno,Postre
+68,15,Moderno,Postre
+100,4,Moderno,Postre
+46,42,Tradicional,Entrada
+69,16,Tradicional,Plato fuerte
+26,45,Moderno,Plato fuerte
+27,10,Gourmet,Entrada
+27,37,Gourmet,Entrada
+19,33,Tradicional,Plato fuerte
+42,35,Fusión,Entrada
+39,11,Gourmet,Postre
+11,38,Fusión,Entrada
+20,16,Tradicional,Especialidad de la casa
+84,19,Moderno,Entrada
+23,12,Tradicional,Entrada
+72,26,Gourmet,Entrada
+95,37,Tradicional,Entrada
+4,26,Moderno,Entrada
+13,4,Tradicional,Postre
+88,7,Moderno,Postre
+65,5,Gourmet,Plato fuerte
+4,35,Tradicional,Entrada
+68,19,Tradicional,Entrada
+92,4,Tradicional,Entrada
+18,36,Moderno,Plato fuerte
+26,49,Gourmet,Especialidad de la casa
+15,49,Gourmet,Entrada
+42,12,Fusión,Entrada
+27,23,Tradicional,Entrada
+83,31,Fusión,Postre
+31,11,Gourmet,Especialidad de la casa
+95,14,Tradicional,Postre
+44,39,Gourmet,Plato fuerte
+64,26,Tradicional,Postre
+87,37,Moderno,Entrada
+34,49,Gourmet,Entrada
+61,2,Gourmet,Especialidad de la casa
+7,40,Moderno,Entrada
+7,49,Fusión,Especialidad de la casa
+83,26,Gourmet,Especialidad de la casa
+11,19,Fusión,Plato fuerte
+12,2,Tradicional,Especialidad de la casa
+41,38,Moderno,Plato fuerte
+12,11,Tradicional,Postre
+33,43,Fusión,Plato fuerte
+87,23,Gourmet,Especialidad de la casa
+65,22,Tradicional,Postre
+38,5,Gourmet,Postre
+89,50,Fusión,Entrada
+98,28,Tradicional,Plato fuerte
