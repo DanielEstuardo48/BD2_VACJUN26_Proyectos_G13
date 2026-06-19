@@ -1,10 +1,9 @@
 // Consulta 9: Recomendación de restaurantes a un usuario
 
-// Parámetros de prueba
-WITH "U0001" AS id_usuario,
+WITH 137 AS id_usuario,
      4 AS puntuacion_minima
 
-MATCH (u:Usuario {id_usuario: id_usuario})-[cal:`CALIFICÓ`]->(r_base:Restaurante)
+MATCH (u:Usuario {id_usuario: id_usuario})-[cal:CALIFICÓ]->(r_base:Restaurante)
 WHERE cal.puntuacion >= puntuacion_minima
 
 MATCH (chef:Chef)-[:TRABAJA_EN]->(r_base)
@@ -12,11 +11,11 @@ MATCH (chef)-[:TRABAJA_EN]->(r_recomendado:Restaurante)
 
 WHERE r_recomendado <> r_base
   AND NOT EXISTS {
-      MATCH (u)-[:`VISITÓ`]->(r_recomendado)
+      MATCH (u)-[:VISITÓ]->(r_recomendado)
   }
 
 OPTIONAL MATCH (r_recomendado)-[:PERTENECE_A]->(tipo:TipoCocina)
-OPTIONAL MATCH (r_recomendado)<-[calificacion:`CALIFICÓ`]-(:Usuario)
+OPTIONAL MATCH (r_recomendado)<-[calificacion:CALIFICÓ]-(:Usuario)
 
 WITH
     r_recomendado,
