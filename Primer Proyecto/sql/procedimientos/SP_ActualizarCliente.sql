@@ -45,18 +45,3 @@ END$$
 
 DELIMITER ;
 
--- Prueba Actualizar cliente
-CALL SP_ActualizarCliente(
-    '10001',
-    'Zona 10, Nueva Dirección',
-    '55551234',
-    'jose.nuevo@mail.com'
-);
-
--- Prueba Cliente que no existe
-CALL SP_ActualizarCliente(
-    '99998',
-    'Zona 1',
-    '55550000',
-    'noexiste@mail.com'
-);

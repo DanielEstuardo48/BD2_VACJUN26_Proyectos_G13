@@ -40,3 +40,8 @@ SELECT
     host
 FROM mysql.user 
 WHERE user IN ('cajero', 'gerente', 'admin_banco');
+
+-- Verificar permisos asignados
+SHOW GRANTS FOR 'cajero'@'%';
+SHOW GRANTS FOR 'gerente'@'%';
+SHOW GRANTS FOR 'admin_banco'@'%';

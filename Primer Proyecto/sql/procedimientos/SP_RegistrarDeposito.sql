@@ -90,15 +90,3 @@ BEGIN
 END$$
 
 DELIMITER ;
-
--- Prueba depósito correcto
-CALL SP_RegistrarDeposito(1001, 100.00, 'Deposito de prueba', 501);
-
--- Prueba monto inválido
-CALL SP_RegistrarDeposito(1001, -100.00, 'Deposito invalido', 501);
-
--- Prueba cuenta inexistente
-CALL SP_RegistrarDeposito(99999, 100.00, 'Cuenta inexistente', 501);
-
--- Prueba empleado inexistente
-CALL SP_RegistrarDeposito(1001, 100.00, 'Empleado inexistente', 99999);

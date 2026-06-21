@@ -97,21 +97,3 @@ BEGIN
 END$$
 
 DELIMITER ;
-
--- Prueba retiro correcto
-CALL SP_RegistrarRetiro(1001, 50.00, 'Retiro de prueba', 501);
-
--- Prueba monto inválido
-CALL SP_RegistrarRetiro(1001, -50.00, 'Retiro invalido', 501);
-
--- Prueba saldo insuficiente
-CALL SP_RegistrarRetiro(1001, 999999.00, 'Retiro sin saldo suficiente', 501);
-
--- Prueba cuenta inexistente
-CALL SP_RegistrarRetiro(99999, 50.00, 'Cuenta inexistente', 501);
-
--- Prueba empleado inexistente
-CALL SP_RegistrarRetiro(1001, 50.00, 'Empleado inexistente', 99999);
-
--- Prueba cuenta sin fondos (Cuenta 1006 tiene saldo 0)
-CALL SP_RegistrarRetiro(1006, 50.00, 'Cuenta sin fondos', 501);

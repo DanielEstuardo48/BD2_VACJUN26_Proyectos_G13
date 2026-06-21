@@ -155,23 +155,3 @@ BEGIN
 END$$
 
 DELIMITER ;
-
--- Pruebas rápidas del procedimiento
-
--- Prueba transferencia correcta
-CALL SP_RealizarTransferencia(1001, 1002, 25.00);
-
--- Prueba monto inválido
-CALL SP_RealizarTransferencia(1001, 1002, -25.00);
-
--- Prueba misma cuenta
-CALL SP_RealizarTransferencia(1001, 1001, 25.00);
-
--- Prueba saldo insuficiente
-CALL SP_RealizarTransferencia(1001, 1002, 999999.00);
-
--- Prueba cuenta origen inexistente
-CALL SP_RealizarTransferencia(99999, 1002, 100.00);
-
--- Prueba cuenta destino inexistente
-CALL SP_RealizarTransferencia(1001, 99999, 100.00);

@@ -50,25 +50,3 @@ END $$
 
 DELIMITER ;
 
-
--- Prueba 1 de cliente nuevo
-CALL SP_RegistrarCliente(
-    '99999',
-    'Luis Prueba',
-    '2000-05-15',
-    'Zona 1, Ciudad',
-    '55559999',
-    'luis.prueba@mail.com'
-);
-
--- DNI duplicado
-CALL SP_RegistrarCliente(
-    '10001',
-    'Jose Morales',
-    '2001-03-12',
-    'Colonia Centro 5-21',
-    '55510001',
-    'jose.morales@mail.com'
-);
-
-SELECT * FROM Cliente;

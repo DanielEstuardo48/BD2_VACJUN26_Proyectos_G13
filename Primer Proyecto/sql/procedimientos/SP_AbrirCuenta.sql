@@ -52,15 +52,3 @@ BEGIN
 END$$
 
 DELIMITER ;
-
--- Pruebas
-CALL SP_AbrirCuenta('10001', 'Ahorro', 1500.00, 1);
--- error de saldo negativo
-CALL SP_AbrirCuenta('10001', 'Ahorro', -500.00, 1);
--- error de ciente que no existe
-CALL SP_AbrirCuenta('99998', 'Ahorro', 1000.00, 1);
--- Error de sucursal que no existe
-CALL SP_AbrirCuenta('10001', 'Ahorro', 1000.00, 99);
--- error de tipo de cuenta que no existe
-CALL SP_AbrirCuenta('10001', 'Inversión', 1000.00, 1);
-
