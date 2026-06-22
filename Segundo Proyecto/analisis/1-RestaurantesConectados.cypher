@@ -11,8 +11,8 @@ WITH r, total_chefs, count(DISTINCT p) AS total_platillos
 OPTIONAL MATCH (r)-[:PERTENECE_A]->(t:TipoCocina)
 WITH r, total_chefs, total_platillos, count(DISTINCT t) AS total_tipos_cocina
 
-OPTIONAL MATCH ()-[:VISITÓ]->(r)
-WITH r, total_chefs, total_platillos, total_tipos_cocina, count(*) AS total_visitas
+OPTIONAL MATCH ()-[v:VISITÓ]->(r)
+WITH r, total_chefs, total_platillos, total_tipos_cocina, count(DISTINCT v) AS total_visitas
 
 OPTIONAL MATCH ()-[cal:CALIFICÓ]->(r)
 WITH
@@ -21,7 +21,7 @@ WITH
     total_platillos,
     total_tipos_cocina,
     total_visitas,
-    count(cal) AS total_calificaciones,
+    count(DISTINCT cal) AS total_calificaciones,
     avg(cal.puntuacion) AS promedio_calificacion
 
 RETURN

@@ -1,4 +1,4 @@
-Usuarios con mayor frecuencia de visitas en un periodo
+// Usuarios con mayor frecuencia de visitas en un periodo
 
 // los parametros pueden ser modificados para evaluar diferentes periodos de tiempo
 WITH date('2025-01-01') AS fecha_inicio,

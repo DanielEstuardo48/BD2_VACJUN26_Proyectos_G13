@@ -1,8 +1,8 @@
 // Análisis de red: Ruta más corta entre usuarios
 
 // Parámetros de prueba
-WITH "U0001" AS usuario_origen,
-     "U0003" AS usuario_destino
+WITH 20 AS usuario_origen,
+     365 AS usuario_destino
 
 MATCH (origen:Usuario {id_usuario: usuario_origen})
 MATCH (destino:Usuario {id_usuario: usuario_destino})
