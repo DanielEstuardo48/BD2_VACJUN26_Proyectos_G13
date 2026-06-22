@@ -72,7 +72,9 @@
     11.1 [Aporte de Daniel Estuardo Salvatierra](#111-aporte-de-daniel-estuardo-salvatierra)  
     11.2 [Aporte de Daniel Alejandro Castellanos Rodriguez](#112-aporte-de-daniel-alejandro-castellanos-rodriguez)  
     11.3 [Aporte de Carlos Fernando Matta Peña](#113-aporte-de-carlos-fernando-matta-peña)  
-    11.4 [Aporte general del equipo](#114-aporte-general-del-equipo)  
+    11.4 [Aporte general del equipo](#114-aporte-general-del-equipo)
+
+12. [Mockup del sistema](#12-mockup-del-sistema)      
        
 
 ## 1. Diseño lógico del modelo de grafos
@@ -1379,3 +1381,6 @@ De forma conjunta, el equipo logró construir una base de datos de grafos funcio
 El equipo aplicó correctamente conceptos de bases de datos orientadas a grafos, utilizando nodos, relaciones, propiedades, constraints, índices y consultas Cypher. Además, se documentaron los resultados obtenidos, permitiendo evidenciar el funcionamiento del sistema y la utilidad de Neo4j para resolver problemas donde las relaciones entre entidades son un elemento central.
 
 El aporte colaborativo permitió cumplir con los requerimientos principales del proyecto, incluyendo la implementación del modelo, la carga de datos, las consultas obligatorias, los análisis de red y la documentación técnica correspondiente.
+
+## 12. Mockup del sistema
+![Mockup del sistema](/Segundo%20Proyecto/documentacion/image/Diagrama_BD2.png)
