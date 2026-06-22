@@ -97,12 +97,13 @@ Se decidió usar strings con prefijo alfabético y número de 4 dígitos (`U0001
 - **Coherencia entre archivos**: todos los CSV de relaciones referencian los mismos IDs, reduciendo errores de integración.
 - **Sin colisiones entre tipos**: `U0001` y `R0001` son distintos aunque compartan el número, lo que evita confusiones.
 
-Ejemplos de ids unicos
-- id_usuario: U0001, U0002, U0003, ...
-- id_restaurante: R0001, R0002, R0003, ...
-- id_tipo_cocina: T0001, T0002, T0003, ...
-- id_chef: C0001, C0002, C0003, ...
-- id_platillo: P0001, P0002, P0003, ...
+Ejemplos de identificadores utilizados:
+
+- id_usuario: 1, 2, 3, ...
+- id_restaurante: 1, 2, 3, ...
+- id_tipo_cocina: 1, 2, 3, ...
+- id_chef: 1, 2, 3, ...
+- id_platillo: 1, 2, 3, ...
 
 ### 1.4 Relaciones con dirección y propiedades
  
@@ -140,22 +141,380 @@ Las reglas definidas para el sistema son las siguientes:
 ![Ejemplo de grafo](/Segundo%20Proyecto/documentacion/image/Screenshot%202026-06-18%20135555.png)
 
 
+## 4. Carga masiva de datos
 
-## 4. Consultas Cypher desarrolladas
+La carga masiva de datos se realizó mediante archivos CSV y scripts Cypher utilizando la instrucción `LOAD CSV WITH HEADERS`. Para la generación de datos se utilizó un script en Python llamado `generar_datos.py`, ubicado dentro de la carpeta `scripts`.
 
-En esta sección se documentan las consultas Cypher correspondientes al **Integrante 3**, enfocadas en análisis temporal, crecimiento de visitas, recomendación de restaurantes y análisis de conectividad entre usuarios.
+Los archivos CSV generados fueron almacenados en la carpeta `data` del proyecto y posteriormente copiados al directorio `import` de Neo4j para permitir su lectura desde Cypher.
+
+### 4.1 Archivos CSV utilizados
+
+| Archivo | Descripción |
+|---|---|
+| usuarios.csv | Contiene los usuarios del sistema |
+| restaurantes.csv | Contiene los restaurantes registrados |
+| chefs.csv | Contiene los chefs del sistema |
+| platillos.csv | Contiene los platillos disponibles |
+| tipos_cocina.csv | Contiene las categorías gastronómicas |
+| califico.csv | Relaciones de calificación entre usuarios y restaurantes |
+| visito.csv | Relaciones de visita entre usuarios y restaurantes |
+| amistades.csv | Relaciones de amistad entre usuarios |
+| pertenece_a.csv | Relación entre restaurantes y tipos de cocina |
+| ofrece.csv | Relación entre restaurantes y platillos |
+| prepara.csv | Relación entre chefs y platillos |
+| trabaja_en.csv | Relación entre chefs y restaurantes |
+| le_gusta.csv | Relación entre usuarios y tipos de cocina |
+
+### 4.2 Cantidades cargadas
+
+| Elemento | Cantidad |
+|---|---:|
+| Usuarios | 500 |
+| Restaurantes | 200 |
+| Chefs | 100 |
+| Platillos | 50 |
+| Tipos de cocina | 15 |
+| VISITÓ | 1600 |
+| CALIFICÓ | 1200 |
+| ES_AMIGO_DE | 900 |
+| PERTENECE_A | 350 |
+| OFRECE | 800 |
+| PREPARA | 350 |
+| TRABAJA_EN | 250 |
+| LE_GUSTA | 1000 |
+
+### 4.3 Proceso de carga
+
+Primero se cargaron los nodos principales del grafo mediante el archivo `04_load_nodes.cypher`. Posteriormente se cargaron las relaciones mediante el archivo `05_load_relationships.cypher`.
+
+La carga de nodos utiliza `MERGE` para evitar duplicados y `SET` para asignar las propiedades correspondientes.
+
+Ejemplo:
+
+```cypher
+LOAD CSV WITH HEADERS
+FROM 'file:///usuarios.csv' AS row
+MERGE (u:Usuario {id_usuario: toInteger(row.id_usuario)})
+SET
+    u.nombre = row.nombre,
+    u.email = row.email,
+    u.edad = toInteger(row.edad),
+    u.pais = row.pais;
+```
+La carga de relaciones utiliza MATCH para localizar los nodos existentes y luego MERGE o CREATE para crear la relación correspondiente.
+
+Ejemplo:
+
+```cypher
+LOAD CSV WITH HEADERS
+FROM 'file:///visito.csv' AS row
+MATCH (u:Usuario {id_usuario: toInteger(row.id_usuario)})
+MATCH (r:Restaurante {id_restaurante: toInteger(row.id_restaurante)})
+CREATE (u)-[v:VISITÓ]->(r)
+SET
+    v.fecha_visita = date(row.fecha_visita),
+    v.consumo = toFloat(row.consumo),
+    v.con_reserva = toBoolean(row.con_reserva);
+```
+### 4.4 Validación de carga
+
+```cypher
+LOAD CSV WITH HEADERS
+FROM 'file:///visito.csv' AS row
+MATCH (u:Usuario {id_usuario: toInteger(row.id_usuario)})
+MATCH (r:Restaurante {id_restaurante: toInteger(row.id_restaurante)})
+CREATE (u)-[v:VISITÓ]->(r)
+SET
+    v.fecha_visita = date(row.fecha_visita),
+    v.consumo = toFloat(row.consumo),
+    v.con_reserva = toBoolean(row.con_reserva);
+```
+
+![Validación de nodos](image/4.2_evidencianodos.png)
+
+```cypher
+MATCH ()-[r]->()
+RETURN type(r) AS relacion, count(r) AS total
+ORDER BY total DESC;
+```
+
+![Validacion de relaciones](image/4.2_evidenciarelaciones.png)
+
+## 5. Consultas Cypher desarrolladas
+
+En esta sección se documentan las consultas Cypher implementadas para el sistema de recomendación de restaurantes en Neo4j. Estas consultas permiten analizar diversidad gastronómica, visitas, reservas, gasto promedio, actividad de restaurantes, movilidad de chefs, variación de precios, crecimiento por tipo de cocina y recomendaciones personalizadas.
 
 Las consultas desarrolladas fueron:
 
-| No. | Consulta                                                     | Responsable                |
-| --- | ------------------------------------------------------------ | -------------------------- |
-| 5   | Restaurantes sin visitas en los últimos N días               | Carlos Fernando Matta Peña |
-| 8   | Crecimiento de visitas por tipo de cocina entre dos periodos | Carlos Fernando Matta Peña |
-| 9   | Recomendación de restaurantes a un usuario                   | Carlos Fernando Matta Peña |
+| No. | Consulta | Responsable |
+| --- | --- | --- |
+| 1 | Diversidad de tipos de cocina por restaurante | Integrante 1 |
+| 2 | Tasa de reservas por restaurante | Integrante 2 |
+| 3 | Usuarios con mayor gasto promedio por visita | Integrante 2 |
+| 4 | Usuarios con mayor frecuencia de visitas en un periodo | Integrante 2 |
+| 5 | Restaurantes sin visitas en los últimos N días | Integrante 3 |
+| 6 | Chefs con mayor movilidad laboral | Integrante 1 |
+| 7 | Platillos con mayor variación de precio entre restaurantes | Integrante 1 |
+| 8 | Crecimiento de visitas por tipo de cocina entre dos periodos | Integrante 3 |
+| 9 | Recomendación de restaurantes a un usuario | Integrante 3 |
 
 ---
 
-### 4.1 Consulta 5: Restaurantes sin visitas en los últimos N días
+### 5.1 Consulta 1: Diversidad de tipos de cocina por restaurante
+
+#### Objetivo
+
+Medir la diversidad gastronómica de cada restaurante a partir de la cantidad de tipos de cocina asociados. Esta consulta permite identificar qué restaurantes ofrecen una propuesta culinaria más variada dentro del sistema.
+
+#### Entidades involucradas
+
+| Entidad | Descripción |
+| --- | --- |
+| `Restaurante` | Establecimiento gastronómico registrado en la plataforma. |
+| `TipoCocina` | Categoría gastronómica a la que puede pertenecer un restaurante. |
+
+#### Relaciones involucradas
+
+| Relación | Descripción |
+| --- | --- |
+| `PERTENECE_A` | Relación que conecta un restaurante con uno o varios tipos de cocina. |
+
+#### Parámetros utilizados
+
+No utiliza parámetros externos.
+
+#### Código Cypher
+
+```cypher
+// Consulta 1: Diversidad de tipos de cocina por restaurante
+
+MATCH (r:Restaurante)-[:PERTENECE_A]->(t:TipoCocina)
+RETURN
+    r.id_restaurante AS id_restaurante,
+    r.nombre AS restaurante,
+    r.rango_precios AS precio,
+    count(t) AS total_tipos_cocina,
+    collect(t.nombre) AS tipos_cocina
+ORDER BY total_tipos_cocina DESC;
+```
+
+#### Explicación
+
+La consulta busca todos los restaurantes que poseen una relación `PERTENECE_A` con algún nodo `TipoCocina`. Luego agrupa los resultados por restaurante, cuenta cuántos tipos de cocina tiene asociados y reúne los nombres de dichos tipos en una lista.
+
+#### Resultado esperado
+
+Se espera obtener una tabla con los restaurantes, su rango de precios, la cantidad de tipos de cocina asociados y el listado de dichas categorías gastronómicas.
+
+#### Interpretación
+
+Los restaurantes con mayor cantidad de tipos de cocina pueden considerarse más diversos, ya que ofrecen una propuesta gastronómica más amplia. Esta información puede utilizarse para análisis de variedad culinaria o para mejorar recomendaciones a usuarios con gustos variados.
+
+#### Evidencia
+
+![Consulta 1 - Diversidad de tipos de cocina](image/5.1.png)
+
+---
+
+### 5.2 Consulta 2: Tasa de reservas por restaurante
+
+#### Objetivo
+
+Calcular el porcentaje de visitas realizadas con reserva para cada restaurante. Esta consulta permite identificar qué restaurantes reciben mayor cantidad de visitas planificadas por parte de los usuarios.
+
+#### Entidades involucradas
+
+| Entidad | Descripción |
+| --- | --- |
+| `Usuario` | Persona registrada en la plataforma que puede visitar restaurantes. |
+| `Restaurante` | Establecimiento gastronómico que recibe visitas. |
+
+#### Relaciones involucradas
+
+| Relación | Descripción |
+| --- | --- |
+| `VISITÓ` | Relación que indica que un usuario visitó un restaurante. Contiene la propiedad `con_reserva`. |
+
+#### Parámetros utilizados
+
+No utiliza parámetros externos.
+
+#### Código Cypher
+
+```cypher
+// Consulta 2: Tasa de reservas por restaurante
+
+MATCH (:Usuario)-[v:VISITÓ]->(r:Restaurante)
+WITH
+    r,
+    count(v) AS total_visitas,
+    sum(CASE WHEN v.con_reserva = true THEN 1 ELSE 0 END) AS visitas_con_reserva
+RETURN
+    r.id_restaurante AS id_restaurante,
+    r.nombre AS restaurante,
+    total_visitas,
+    visitas_con_reserva,
+    round((toFloat(visitas_con_reserva) / total_visitas) * 100, 2) AS porcentaje_reservas
+ORDER BY porcentaje_reservas DESC, total_visitas DESC;
+```
+
+#### Explicación
+
+La consulta recorre las relaciones `VISITÓ` entre usuarios y restaurantes. Para cada restaurante se cuenta el total de visitas y se suman únicamente aquellas en las que la propiedad `con_reserva` tiene valor `true`.
+
+Luego se calcula el porcentaje de reservas dividiendo las visitas con reserva entre el total de visitas del restaurante y multiplicando el resultado por 100.
+
+#### Resultado esperado
+
+Se espera obtener una tabla con el identificador del restaurante, nombre, total de visitas, visitas con reserva y porcentaje de reservas.
+
+#### Interpretación
+
+Los restaurantes con mayor porcentaje de reservas pueden considerarse establecimientos donde los usuarios planifican más sus visitas. Esto puede ser útil para analizar demanda, ocupación o comportamiento de consumo.
+
+#### Evidencia
+
+![Consulta 2 - Tasa de reservas por restaurante](image/5.2.png)
+
+---
+
+### 5.3 Consulta 3: Usuarios con mayor gasto promedio por visita
+
+#### Objetivo
+
+Identificar los usuarios que presentan el mayor gasto promedio por visita. Esta consulta permite analizar el comportamiento de consumo de los usuarios dentro del sistema.
+
+#### Entidades involucradas
+
+| Entidad | Descripción |
+| --- | --- |
+| `Usuario` | Persona que realiza visitas a restaurantes. |
+| `Restaurante` | Establecimiento visitado por los usuarios. |
+
+#### Relaciones involucradas
+
+| Relación | Descripción |
+| --- | --- |
+| `VISITÓ` | Relación que almacena información de cada visita, incluyendo el consumo realizado. |
+
+#### Parámetros utilizados
+
+No utiliza parámetros externos.
+
+#### Código Cypher
+
+```cypher
+// Consulta 3: Usuarios con mayor gasto promedio por visita
+
+MATCH (u:Usuario)-[v:VISITÓ]->(r:Restaurante)
+WITH
+    u,
+    count(v) AS total_visitas,
+    avg(v.consumo) AS gasto_promedio,
+    sum(v.consumo) AS gasto_total
+RETURN
+    u.id_usuario AS id_usuario,
+    u.nombre AS usuario,
+    u.email AS email,
+    total_visitas,
+    round(gasto_promedio, 2) AS gasto_promedio_por_visita,
+    round(gasto_total, 2) AS gasto_total
+ORDER BY gasto_promedio_por_visita DESC
+LIMIT 20;
+```
+
+#### Explicación
+
+La consulta busca todas las visitas realizadas por los usuarios. Luego agrupa los resultados por usuario y calcula tres métricas principales: total de visitas, gasto promedio y gasto total.
+
+La función `avg()` calcula el consumo promedio por visita, mientras que `sum()` calcula el gasto acumulado del usuario.
+
+#### Resultado esperado
+
+Se espera obtener una tabla con los usuarios que tienen mayor gasto promedio por visita, mostrando también su cantidad de visitas y gasto total.
+
+#### Interpretación
+
+Esta consulta permite identificar usuarios con alto nivel de consumo. Desde una perspectiva de negocio, estos usuarios podrían considerarse clientes frecuentes de alto valor o candidatos para promociones personalizadas.
+
+#### Evidencia
+
+![Consulta 3 - Usuarios con mayor gasto promedio](image/5.3.png)
+
+---
+
+### 5.4 Consulta 4: Usuarios con mayor frecuencia de visitas en un periodo
+
+#### Objetivo
+
+Identificar los usuarios que realizaron más visitas dentro de un periodo específico. Esta consulta permite analizar frecuencia de uso y actividad de los usuarios en un rango de fechas determinado.
+
+#### Entidades involucradas
+
+| Entidad | Descripción |
+| --- | --- |
+| `Usuario` | Persona que realiza visitas dentro del sistema. |
+| `Restaurante` | Restaurante visitado por los usuarios. |
+
+#### Relaciones involucradas
+
+| Relación | Descripción |
+| --- | --- |
+| `VISITÓ` | Relación que almacena la fecha en la que un usuario visitó un restaurante. |
+
+#### Parámetros utilizados
+
+| Parámetro | Valor utilizado | Descripción |
+| --- | --- | --- |
+| `fecha_inicio` | `2025-01-01` | Fecha inicial del periodo evaluado. |
+| `fecha_fin` | `2025-12-31` | Fecha final del periodo evaluado. |
+
+#### Código Cypher
+
+```cypher
+// Consulta 4: Usuarios con mayor frecuencia de visitas en un periodo
+
+WITH date('2025-01-01') AS fecha_inicio,
+     date('2025-12-31') AS fecha_fin
+
+MATCH (u:Usuario)-[v:VISITÓ]->(r:Restaurante)
+WHERE v.fecha_visita >= fecha_inicio
+  AND v.fecha_visita <= fecha_fin
+WITH
+    u,
+    count(v) AS total_visitas_periodo,
+    collect(DISTINCT r.nombre)[0..5] AS restaurantes_visitados
+RETURN
+    u.id_usuario AS id_usuario,
+    u.nombre AS usuario,
+    u.email AS email,
+    total_visitas_periodo,
+    restaurantes_visitados
+ORDER BY total_visitas_periodo DESC
+LIMIT 20;
+```
+
+#### Explicación
+
+La consulta define un rango de fechas mediante `fecha_inicio` y `fecha_fin`. Luego busca las relaciones `VISITÓ` cuya propiedad `fecha_visita` se encuentre dentro de ese periodo.
+
+Después agrupa los resultados por usuario, cuenta el total de visitas realizadas en ese rango y muestra algunos restaurantes visitados como referencia.
+
+#### Resultado esperado
+
+Se espera obtener una tabla con los usuarios que realizaron mayor cantidad de visitas dentro del periodo definido.
+
+#### Interpretación
+
+Esta consulta permite identificar usuarios con alta frecuencia de uso de la plataforma durante un periodo específico. Puede utilizarse para analizar actividad, fidelidad o comportamiento recurrente.
+
+#### Evidencia
+
+![Consulta 4 - Usuarios con mayor frecuencia de visitas](image/5.4.png)
+
+---
+
+### 5.5 Consulta 5: Restaurantes sin visitas en los últimos N días
 
 #### Objetivo
 
@@ -163,41 +522,40 @@ Identificar restaurantes que no han recibido visitas recientes dentro de un peri
 
 #### Entidades involucradas
 
-| Entidad       | Descripción                                                     |
-| ------------- | --------------------------------------------------------------- |
-| `Restaurante` | Establecimiento gastronómico registrado en el sistema.          |
-| `Usuario`     | Persona que utiliza la plataforma y puede visitar restaurantes. |
+| Entidad | Descripción |
+| --- | --- |
+| `Restaurante` | Establecimiento gastronómico registrado en el sistema. |
+| `Usuario` | Persona que utiliza la plataforma y puede visitar restaurantes. |
 
 #### Relaciones involucradas
 
-| Relación | Descripción                                               |
-| -------- | --------------------------------------------------------- |
+| Relación | Descripción |
+| --- | --- |
 | `VISITÓ` | Relación que indica que un usuario visitó un restaurante. |
 
 #### Parámetros utilizados
 
-| Parámetro          | Valor utilizado | Descripción                                                                               |
-| ------------------ | --------------- | ----------------------------------------------------------------------------------------- |
-| `fecha_referencia` | `2026-06-30`    | Fecha base desde la cual se evalúa el periodo.                                            |
-| `dias_sin_visita`  | `90`            | Cantidad de días usados para determinar si un restaurante no ha tenido visitas recientes. |
+| Parámetro | Valor utilizado | Descripción |
+| --- | --- | --- |
+| `fecha_referencia` | `2026-06-30` | Fecha base desde la cual se evalúa el periodo. |
+| `dias_sin_visita` | `90` | Cantidad de días usados para determinar si un restaurante no ha tenido visitas recientes. |
 
 #### Código Cypher
 
 ```cypher
 // Consulta 5: Restaurantes sin visitas en los últimos N días
 
-// Parámetros de prueba
 WITH date('2026-06-30') AS fecha_referencia,
      90 AS dias_sin_visita
 
 MATCH (r:Restaurante)
 
 WHERE NOT EXISTS {
-    MATCH (:Usuario)-[v:`VISITÓ`]->(r)
+    MATCH (:Usuario)-[v:VISITÓ]->(r)
     WHERE v.fecha_visita >= fecha_referencia - duration({days: dias_sin_visita})
 }
 
-OPTIONAL MATCH (:Usuario)-[ultima:`VISITÓ`]->(r)
+OPTIONAL MATCH (:Usuario)-[ultima:VISITÓ]->(r)
 
 RETURN
     r.id_restaurante AS id_restaurante,
@@ -225,11 +583,138 @@ El resultado permite identificar restaurantes con poca o nula actividad reciente
 
 #### Evidencia
 
-![Consulta 5 - Restaurantes sin visitas recientes](/Segundo%20Proyecto/documentacion/capturas/consulta_5_restaurantes_sin_visitas.png)
+![Consulta 5 - Restaurantes sin visitas recientes](image/5.5.png)
 
 ---
 
-### 4.2 Consulta 8: Crecimiento de visitas por tipo de cocina entre dos periodos
+### 5.6 Consulta 6: Chefs con mayor movilidad laboral
+
+#### Objetivo
+
+Determinar cuáles chefs han trabajado en mayor cantidad de restaurantes. Esta consulta permite analizar la movilidad laboral de los chefs dentro del sistema gastronómico.
+
+#### Entidades involucradas
+
+| Entidad | Descripción |
+| --- | --- |
+| `Chef` | Persona encargada de la preparación culinaria. |
+| `Restaurante` | Establecimiento en el que trabaja o ha trabajado un chef. |
+
+#### Relaciones involucradas
+
+| Relación | Descripción |
+| --- | --- |
+| `TRABAJA_EN` | Relación que conecta un chef con un restaurante e incluye propiedades como puesto y fecha de inicio. |
+
+#### Parámetros utilizados
+
+No utiliza parámetros externos.
+
+#### Código Cypher
+
+```cypher
+// Consulta 6: Chefs con mayor movilidad laboral
+
+MATCH (c:Chef)-[t:TRABAJA_EN]->(r:Restaurante)
+RETURN
+    c.id_chef AS id_chef,
+    c.nombre AS chef,
+    c.nacionalidad AS nacionalidad,
+    count(r) AS total_restaurantes,
+    collect(r.nombre) AS restaurantes,
+    collect(t.puesto) AS puestos
+ORDER BY total_restaurantes DESC;
+```
+
+#### Explicación
+
+La consulta busca todos los chefs que tienen una relación `TRABAJA_EN` con uno o más restaurantes. Luego agrupa los resultados por chef y cuenta la cantidad de restaurantes asociados.
+
+También se recopila el listado de restaurantes y puestos ocupados para tener mayor detalle del historial laboral.
+
+#### Resultado esperado
+
+Se espera obtener una tabla con los chefs ordenados por la cantidad de restaurantes en los que han trabajado.
+
+#### Interpretación
+
+Un chef con mayor cantidad de restaurantes asociados puede considerarse con alta movilidad laboral. Esta información puede ser útil para analizar experiencia, trayectoria o participación en diferentes establecimientos.
+
+#### Evidencia
+
+![Consulta 6 - Chefs con mayor movilidad laboral](image/5.6.png)
+---
+
+### 5.7 Consulta 7: Platillos con mayor variación de precio entre restaurantes
+
+#### Objetivo
+
+Detectar los platillos que presentan mayor variación de precio entre distintos restaurantes. Esta consulta permite comparar el precio de un mismo platillo cuando es ofrecido por diferentes establecimientos.
+
+#### Entidades involucradas
+
+| Entidad | Descripción |
+| --- | --- |
+| `Restaurante` | Establecimiento que ofrece platillos. |
+| `Platillo` | Preparación gastronómica ofrecida por uno o varios restaurantes. |
+
+#### Relaciones involucradas
+
+| Relación | Descripción |
+| --- | --- |
+| `OFRECE` | Relación que conecta un restaurante con un platillo e incluye el precio ofertado. |
+
+#### Parámetros utilizados
+
+No utiliza parámetros externos.
+
+#### Código Cypher
+
+```cypher
+// Consulta 7: Platillos con mayor variación de precio
+
+MATCH (r:Restaurante)-[o:OFRECE]->(p:Platillo)
+WITH
+    p,
+    count(r) AS total_restaurantes,
+    min(o.precio) AS precio_minimo,
+    max(o.precio) AS precio_maximo,
+    avg(o.precio) AS precio_promedio,
+    collect(r.nombre + ': Q' + toString(o.precio)) AS detalle_precios
+WHERE total_restaurantes > 1
+RETURN
+    p.id_platillo AS id_platillo,
+    p.nombre AS platillo,
+    total_restaurantes,
+    precio_minimo,
+    precio_maximo,
+    round(precio_promedio * 100) / 100 AS precio_promedio,
+    precio_maximo - precio_minimo AS variacion,
+    detalle_precios
+ORDER BY variacion DESC;
+```
+
+#### Explicación
+
+La consulta recorre las relaciones `OFRECE` entre restaurantes y platillos. Luego agrupa los resultados por platillo para calcular el precio mínimo, precio máximo, precio promedio y la diferencia entre el precio más alto y el más bajo.
+
+La condición `WHERE total_restaurantes > 1` asegura que solo se analicen platillos ofrecidos por más de un restaurante, ya que solo así es posible comparar precios.
+
+#### Resultado esperado
+
+Se espera obtener un listado de platillos ordenados por mayor variación de precio entre restaurantes.
+
+#### Interpretación
+
+Los platillos con mayor variación de precio pueden indicar diferencias en calidad, presentación, ubicación del restaurante o estrategia comercial. Esta información puede apoyar análisis de precios dentro de la plataforma.
+
+#### Evidencia
+
+![Consulta 7 - Platillos con mayor variación de precio](image/5.7.png)
+
+---
+
+### 5.8 Consulta 8: Crecimiento de visitas por tipo de cocina entre dos periodos
 
 #### Objetivo
 
@@ -237,27 +722,27 @@ Comparar la cantidad de visitas recibidas por cada tipo de cocina en dos periodo
 
 #### Entidades involucradas
 
-| Entidad       | Descripción                                               |
-| ------------- | --------------------------------------------------------- |
-| `TipoCocina`  | Categoría gastronómica a la que pertenece un restaurante. |
-| `Restaurante` | Establecimiento asociado a uno o varios tipos de cocina.  |
-| `Usuario`     | Persona que realiza visitas a restaurantes.               |
+| Entidad | Descripción |
+| --- | --- |
+| `TipoCocina` | Categoría gastronómica a la que pertenece un restaurante. |
+| `Restaurante` | Establecimiento asociado a uno o varios tipos de cocina. |
+| `Usuario` | Persona que realiza visitas a restaurantes. |
 
 #### Relaciones involucradas
 
-| Relación      | Descripción                                          |
-| ------------- | ---------------------------------------------------- |
-| `PERTENECE_A` | Relación entre un restaurante y un tipo de cocina.   |
-| `VISITÓ`      | Relación entre un usuario y un restaurante visitado. |
+| Relación | Descripción |
+| --- | --- |
+| `PERTENECE_A` | Relación entre un restaurante y un tipo de cocina. |
+| `VISITÓ` | Relación entre un usuario y un restaurante visitado. |
 
 #### Parámetros utilizados
 
-| Parámetro          | Valor utilizado | Descripción                        |
-| ------------------ | --------------- | ---------------------------------- |
-| `inicio_periodo_1` | `2026-01-01`    | Fecha inicial del primer periodo.  |
-| `fin_periodo_1`    | `2026-03-31`    | Fecha final del primer periodo.    |
-| `inicio_periodo_2` | `2026-04-01`    | Fecha inicial del segundo periodo. |
-| `fin_periodo_2`    | `2026-06-30`    | Fecha final del segundo periodo.   |
+| Parámetro | Valor utilizado | Descripción |
+| --- | --- | --- |
+| `inicio_periodo_1` | `2026-01-01` | Fecha inicial del primer periodo. |
+| `fin_periodo_1` | `2026-03-31` | Fecha final del primer periodo. |
+| `inicio_periodo_2` | `2026-04-01` | Fecha inicial del segundo periodo. |
+| `fin_periodo_2` | `2026-06-30` | Fecha final del segundo periodo. |
 
 #### Código Cypher
 
@@ -271,14 +756,14 @@ WITH date('2026-01-01') AS inicio_periodo_1,
 
 MATCH (t:TipoCocina)
 
-OPTIONAL MATCH (t)<-[:PERTENECE_A]-(r1:Restaurante)<-[v1:`VISITÓ`]-(:Usuario)
+OPTIONAL MATCH (t)<-[:PERTENECE_A]-(r1:Restaurante)<-[v1:VISITÓ]-(:Usuario)
 WHERE v1.fecha_visita >= inicio_periodo_1
   AND v1.fecha_visita <= fin_periodo_1
 
 WITH t, inicio_periodo_1, fin_periodo_1, inicio_periodo_2, fin_periodo_2,
      count(DISTINCT v1) AS visitas_periodo_1
 
-OPTIONAL MATCH (t)<-[:PERTENECE_A]-(r2:Restaurante)<-[v2:`VISITÓ`]-(:Usuario)
+OPTIONAL MATCH (t)<-[:PERTENECE_A]-(r2:Restaurante)<-[v2:VISITÓ]-(:Usuario)
 WHERE v2.fecha_visita >= inicio_periodo_2
   AND v2.fecha_visita <= fin_periodo_2
 
@@ -311,12 +796,7 @@ La expresión `CASE` permite evitar divisiones entre cero cuando un tipo de coci
 
 #### Resultado esperado
 
-Se espera obtener un listado de tipos de cocina con:
-
-* visitas del primer periodo,
-* visitas del segundo periodo,
-* diferencia de visitas,
-* porcentaje de crecimiento.
+Se espera obtener un listado de tipos de cocina con visitas del primer periodo, visitas del segundo periodo, diferencia de visitas y porcentaje de crecimiento.
 
 #### Interpretación
 
@@ -324,11 +804,11 @@ Esta consulta permite analizar tendencias de consumo. Un crecimiento positivo in
 
 #### Evidencia
 
-![Consulta 8 - Crecimiento de visitas por tipo de cocina](/Segundo%20Proyecto/documentacion/capturas/consulta_8_crecimiento_tipo_cocina.png)
+![Consulta 8 - Crecimiento de visitas por tipo de cocina](image/5.8.png)
 
 ---
 
-### 4.3 Consulta 9: Recomendación de restaurantes a un usuario
+### 5.9 Consulta 9: Recomendación de restaurantes a un usuario
 
 #### Objetivo
 
@@ -336,39 +816,38 @@ Recomendar restaurantes a un usuario específico tomando como base restaurantes 
 
 #### Entidades involucradas
 
-| Entidad       | Descripción                                              |
-| ------------- | -------------------------------------------------------- |
-| `Usuario`     | Persona a quien se le genera la recomendación.           |
-| `Restaurante` | Establecimiento evaluado como posible recomendación.     |
-| `Chef`        | Profesional culinario que conecta restaurantes entre sí. |
-| `TipoCocina`  | Categoría gastronómica del restaurante recomendado.      |
+| Entidad | Descripción |
+| --- | --- |
+| `Usuario` | Persona a quien se le genera la recomendación. |
+| `Restaurante` | Establecimiento evaluado como posible recomendación. |
+| `Chef` | Profesional culinario que conecta restaurantes entre sí. |
+| `TipoCocina` | Categoría gastronómica del restaurante recomendado. |
 
 #### Relaciones involucradas
 
-| Relación      | Descripción                                                      |
-| ------------- | ---------------------------------------------------------------- |
-| `CALIFICÓ`    | Relación donde un usuario califica un restaurante.               |
-| `VISITÓ`      | Relación usada para evitar recomendar restaurantes ya visitados. |
-| `TRABAJA_EN`  | Relación que conecta chefs con restaurantes.                     |
-| `PERTENECE_A` | Relación que identifica el tipo de cocina del restaurante.       |
+| Relación | Descripción |
+| --- | --- |
+| `CALIFICÓ` | Relación donde un usuario califica un restaurante. |
+| `VISITÓ` | Relación usada para evitar recomendar restaurantes ya visitados. |
+| `TRABAJA_EN` | Relación que conecta chefs con restaurantes. |
+| `PERTENECE_A` | Relación que identifica el tipo de cocina del restaurante. |
 
 #### Parámetros utilizados
 
-| Parámetro           | Valor utilizado | Descripción                                                                  |
-| ------------------- | --------------- | ---------------------------------------------------------------------------- |
-| `id_usuario`        | `U0001`         | Usuario al que se le generan recomendaciones.                                |
-| `puntuacion_minima` | `4`             | Calificación mínima para considerar un restaurante como referencia positiva. |
+| Parámetro | Valor utilizado | Descripción |
+| --- | --- | --- |
+| `id_usuario` | `137` | Usuario al que se le generan recomendaciones. |
+| `puntuacion_minima` | `4` | Calificación mínima para considerar un restaurante como referencia positiva. |
 
 #### Código Cypher
 
 ```cypher
 // Consulta 9: Recomendación de restaurantes a un usuario
 
-// Parámetros de prueba
-WITH "U0001" AS id_usuario,
+WITH 137 AS id_usuario,
      4 AS puntuacion_minima
 
-MATCH (u:Usuario {id_usuario: id_usuario})-[cal:`CALIFICÓ`]->(r_base:Restaurante)
+MATCH (u:Usuario {id_usuario: id_usuario})-[cal:CALIFICÓ]->(r_base:Restaurante)
 WHERE cal.puntuacion >= puntuacion_minima
 
 MATCH (chef:Chef)-[:TRABAJA_EN]->(r_base)
@@ -376,11 +855,11 @@ MATCH (chef)-[:TRABAJA_EN]->(r_recomendado:Restaurante)
 
 WHERE r_recomendado <> r_base
   AND NOT EXISTS {
-      MATCH (u)-[:`VISITÓ`]->(r_recomendado)
+      MATCH (u)-[:VISITÓ]->(r_recomendado)
   }
 
 OPTIONAL MATCH (r_recomendado)-[:PERTENECE_A]->(tipo:TipoCocina)
-OPTIONAL MATCH (r_recomendado)<-[calificacion:`CALIFICÓ`]-(:Usuario)
+OPTIONAL MATCH (r_recomendado)<-[calificacion:CALIFICÓ]-(:Usuario)
 
 WITH
     r_recomendado,
@@ -406,7 +885,7 @@ LIMIT 10;
 
 #### Explicación
 
-La consulta inicia seleccionando un usuario específico mediante su identificador. Luego busca los restaurantes que ese usuario calificó con una puntuación igual o mayor a 4. Estos restaurantes se consideran referencias positivas.
+La consulta inicia seleccionando un usuario específico mediante su identificador numérico. Luego busca los restaurantes que ese usuario calificó con una puntuación igual o mayor a 4. Estos restaurantes se consideran referencias positivas.
 
 A partir de esos restaurantes, se identifican los chefs que trabajan en ellos. Luego se buscan otros restaurantes donde también trabajen esos chefs. Estos restaurantes se consideran candidatos a recomendación porque comparten chefs con restaurantes que el usuario valoró positivamente.
 
@@ -414,15 +893,7 @@ Para evitar recomendar restaurantes repetidos, se utiliza `NOT EXISTS`, verifica
 
 #### Resultado esperado
 
-Se espera obtener un listado de restaurantes recomendados para el usuario, mostrando:
-
-* restaurante recomendado,
-* rango de precios,
-* chefs compartidos,
-* restaurantes base,
-* tipos de cocina,
-* coincidencias de chefs,
-* promedio de calificación.
+Se espera obtener un listado de restaurantes recomendados para el usuario, mostrando restaurante recomendado, rango de precios, chefs compartidos, restaurantes base, tipos de cocina, coincidencias de chefs y promedio de calificación.
 
 #### Interpretación
 
@@ -430,17 +901,17 @@ Esta consulta demuestra el uso de Neo4j como base de datos orientada a grafos, y
 
 #### Evidencia
 
-![Consulta 9 - Recomendación de restaurantes](/Segundo%20Proyecto/documentacion/capturas/consulta_9_recomendacion.png)
+![Consilta 9 - Recomendación de restaurantes](image/5.9.png)
 
 ---
 
-## 5. Análisis de red
+## 6. Análisis de red
 
 Además de las consultas de negocio, se implementó un análisis de red basado en rutas entre usuarios. Este análisis permite aprovechar una de las principales ventajas de Neo4j: recorrer conexiones entre nodos de forma directa y eficiente.
 
 ---
 
-### 5.1 Ruta más corta entre usuarios
+### 6.1 Ruta más corta entre usuarios
 
 #### Objetivo
 
@@ -509,7 +980,7 @@ Este análisis permite observar la conectividad social dentro del sistema. Si do
 
 ---
 
-## 6. Aporte del Integrante 3
+## 7. Aporte del Integrante 3
 
 El aporte del Integrante 3 se enfocó en la construcción de consultas analíticas, sistema de recomendación y análisis de red dentro del proyecto de restaurantes en Neo4j.
 
