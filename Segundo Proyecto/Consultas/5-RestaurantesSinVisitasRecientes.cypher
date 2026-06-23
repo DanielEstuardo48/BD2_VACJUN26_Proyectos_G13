@@ -1,6 +1,6 @@
 // Consulta 5: Restaurantes sin visitas en los últimos N días
 
-// Parámetros de prueba
+// Parámetros para definir el periodo de evaluación
 WITH date('2026-06-30') AS fecha_referencia,
      90 AS dias_sin_visita
 

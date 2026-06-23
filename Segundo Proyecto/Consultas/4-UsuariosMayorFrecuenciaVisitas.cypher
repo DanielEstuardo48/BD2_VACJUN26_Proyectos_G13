@@ -1,6 +1,6 @@
 // Usuarios con mayor frecuencia de visitas en un periodo
 
-// los parametros pueden ser modificados para evaluar diferentes periodos de tiempo
+// Parametros de fecha para el periodo de análisis
 WITH date('2025-01-01') AS fecha_inicio,
      date('2025-12-31') AS fecha_fin
 

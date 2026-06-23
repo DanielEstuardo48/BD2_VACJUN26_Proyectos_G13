@@ -7,7 +7,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "data"
 DATA_DIR.mkdir(exist_ok=True)
 
-random.seed(2026)
 
 def escribir_csv(nombre_archivo, encabezados, filas):
     ruta = DATA_DIR / nombre_archivo
@@ -23,10 +22,7 @@ def fecha_aleatoria(inicio="2024-01-01", fin="2026-06-22"):
     dias = (fecha_fin - fecha_inicio).days
     return (fecha_inicio + timedelta(days=random.randint(0, dias))).strftime("%Y-%m-%d")
 
-# =========================
 # NODOS
-# =========================
-
 paises = ["Guatemala", "México", "El Salvador", "Honduras", "Costa Rica", "Colombia", "Argentina", "España"]
 rangos_precios = ["Bajo", "Medio", "Alto"]
 nacionalidades = ["Guatemalteca", "Mexicana", "Italiana", "Francesa", "Japonesa", "Peruana", "Española"]
@@ -77,10 +73,7 @@ tipos = [
     for i in range(1, 16)
 ]
 
-# =========================
 # RELACIONES
-# =========================
-
 califico = []
 for i in range(1, 1201):
     califico.append([
@@ -178,7 +171,6 @@ le_gusta = [
 ]
 
 # Generar archivos CSV
-
 escribir_csv("usuarios.csv", ["id_usuario", "nombre", "email", "edad", "pais"], usuarios)
 escribir_csv("restaurantes.csv", ["id_restaurante", "nombre", "anio_apertura", "rango_precios", "descripcion"], restaurantes)
 escribir_csv("chefs.csv", ["id_chef", "nombre", "fecha_nacimiento", "nacionalidad"], chefs)

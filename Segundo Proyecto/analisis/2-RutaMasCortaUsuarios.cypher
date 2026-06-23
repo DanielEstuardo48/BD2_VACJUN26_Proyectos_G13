@@ -1,6 +1,6 @@
 // Análisis de red: Ruta más corta entre usuarios
 
-// Parámetros de prueba
+// Parámetros para definir los usuarios de origen y destino
 WITH 20 AS usuario_origen,
      365 AS usuario_destino
 
